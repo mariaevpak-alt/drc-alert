@@ -59,12 +59,31 @@ async function startWA() {
 
   sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("connection.update", async ({ qr }) => {
+  sock.ev.on("connection.update", async (update) => {
+    const { qr, connection, lastDisconnect } = update;
+  
     if (qr) {
-      const qrImg = await qrcode.toBuffer(qr);
-      bot.sendPhoto(config.ALERT_CHANNEL, qrImg, {
-        caption: "🔐 WhatsApp QR"
-      });
+      console.log("📱 QR RECEIVED");
+  
+      try {
+        const qrImg = await qrcode.toBuffer(qr);
+  
+        await bot.sendPhoto(config.ALERT_CHANNEL, qrImg, {
+          caption: "🔐 WhatsApp QR — відскануй"
+        });
+  
+        console.log("✅ QR sent to Telegram");
+      } catch (err) {
+        console.log("❌ QR send error:", err.message);
+      }
+    }
+  
+    if (connection === "open") {
+      console.log("✅ WhatsApp CONNECTED");
+    }
+  
+    if (connection === "close") {
+      console.log("❌ WA closed:", lastDisconnect?.error);
     }
   });
 
