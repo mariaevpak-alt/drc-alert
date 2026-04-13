@@ -132,10 +132,18 @@ async function startTG() {
   await tgClient.start();
 
   tgClient.addEventHandler(event => {
-    const msg = event.message;
-    if (!msg.message) return;
-
-    processAlert(msg.message);
+    try {
+      const msg = event.message;
+  
+      if (!msg) return;
+      if (!msg.message) return;
+      if (typeof msg.message !== "string") return;
+  
+      processAlert(msg.message);
+  
+    } catch (err) {
+      console.log("TG parse error:", err.message);
+    }
   });
 }
 
